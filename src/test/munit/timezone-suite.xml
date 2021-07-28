@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="timezone-suite.xml" />
+	<munit:test name="get:\timezone\(region)\(city):timezone-config-test" doc:id="83efbd19-1d6f-488a-befd-10527524640a" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="e3fff65b-a96f-403e-b5dc-22dba778c9c6" >
+				<munit:payload value="#[readUrl('classpath://gettimezoneregioncitytimezoneconfigtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://gettimezoneregioncitytimezoneconfigtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://gettimezoneregioncitytimezoneconfigtest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="545b548b-4c33-4abb-bb5b-e0fff94c74fd" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="HTTP_Request_configuration" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="35e17d2f-333e-4e26-af37-a5920a420647" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('gettimezoneregioncitytimezoneconfigtest/pay.json')]" mediaType="application/xml" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\timezone\(region)\(city):timezone-config" doc:id="74a31b7e-7353-45ec-9688-5f391b34fb30" name="get:\timezone\(region)\(city):timezone-config"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="ba109be0-88e7-4fab-bcc8-32bca9f9a877" actual="#[payload.timezone]" expected='#["Asia/Kolkata"]' message="payload is not matched"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="timezone-suiteTest" doc:id="f4dc3350-477b-4137-a845-4ea9c4fac7c6" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ac8e447e-d5d5-468b-96e3-29d94598d0ba" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="timezone-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="9ba3c58e-6733-4482-b9b4-aa96cd93569b" >
+				<flow-ref doc:name="Flow Reference" doc:id="07fe039c-c3ac-4f96-8c4b-f9e70fdcf1a6" name="timezone-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1953bb7e-74b4-4519-b6f4-a664fb8186fd" type="APIKIT:BAD_REQUEST"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="0b011c8b-0a4f-40a5-aeda-b94db8826999" actual="#[vars.httpStatus]" expected="#[400]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="timezone-suiteTest2" doc:id="3a8d9183-154f-443b-b32e-fde99b66c885" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="825cfea4-a68d-4140-b6d1-442a0bea901b" processor="apikit:console">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="timezone-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="c75f8a0d-704c-44ae-b289-9151ed85eab3" name="timezone-console"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="timezone-suiteTest1" doc:id="b27f560f-4308-4750-9132-ae186cf734b6" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0059ab80-8f3f-40a9-95ad-a5585bf1577a" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="timezone-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="a2702c21-ec62-4d3d-90ac-4717b7fba022" >
+				<flow-ref doc:name="Flow Reference" doc:id="2b061155-f934-48bf-93b5-9012e3a7b86c" name="timezone-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="22c6c5a7-97cd-47c0-ae63-14c01d15dd4b" type="APIKIT:NOT_FOUND"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="e5685b9a-728c-49ee-8a99-98a008b8d121" actual="#[vars.httpStatus]" expected="#[404]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="timezone-suiteTest3" doc:id="55f9853d-175e-4019-882e-058cba40e1cd" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="58a1f251-2de4-4bc6-8e26-9f9a1378ecd0" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="timezone-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="3ca87ec5-8060-44cc-b784-fcfb7958830b" >
+				<flow-ref doc:name="Flow Reference" doc:id="b0034e48-9f6f-4bf8-ba74-19c1c1844fb5" name="timezone-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c9b80337-275e-4b9a-bf98-53c10db88a2e" type="APIKIT:METHOD_NOT_ALLOWED"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="475b52a3-499e-41d1-bfa0-fe53537ee163" actual="#[vars.httpStatus]" expected="#[405]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="timezone-suiteTest4" doc:id="101d4e74-5ba6-4b8a-aa8b-85e3acc411b2" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="84fa394e-cb2b-4e8b-a2b3-7807af253810" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="timezone-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="005b3642-343d-4788-b8ab-1b2534d33a21" >
+				<flow-ref doc:name="Flow Reference" doc:id="d0ec50cc-c8e4-40ab-b2ba-40434c33b7fb" name="timezone-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="78353f94-bbc5-43ec-9825-bb8fca4f305f" type="APIKIT:NOT_ACCEPTABLE"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="40887a8c-27e7-43e0-899f-6dd5617b8cc6" actual="#[vars.httpStatus]" expected="#[406]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="timezone-suiteTest5" doc:id="ca2e2d03-a08b-4dce-b3b3-2c80553d6cc2" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="23ba9bee-8aa0-46a8-811e-3df90c166a91" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="timezone-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="711d391d-5676-47a3-b5be-74e712d54b4f" >
+				<flow-ref doc:name="Flow Reference" doc:id="a38641d1-2136-4c06-a4de-1c85374989bf" name="timezone-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a76b7f31-9f91-49c8-a011-1a295b98ac43" type="APIKIT:UNSUPPORTED_MEDIA_TYPE"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="01fc781a-d106-4967-a691-a9e2ab479b51" actual="#[vars.httpStatus]" expected="#[415]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="timezone-suiteTest6" doc:id="215dc813-50b7-4eb9-b574-c045dd8de471" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="9c419a62-2a0e-4443-9e04-b68afe165a1a" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="timezone-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="50d1ff97-7684-41a7-b7b2-0d5815bc9d59" >
+				<flow-ref doc:name="Flow Reference" doc:id="19978650-649e-4908-8e59-fc700975e1e6" name="timezone-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3a0178cc-8cab-4dfc-9e7e-4bd04d165f57" type="APIKIT:NOT_IMPLEMENTED"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="fb7d75f2-d158-4767-97ab-7e367e051091" actual="#[vars.httpStatus]" expected="#[501]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
